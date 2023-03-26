@@ -7,11 +7,9 @@ import tile_types
 class GameMap:
     def __init__(self, width: int, height: int):
         self.width, self.height = width, height
-        self.tiles = numpy.full((width, height), fill_value = tile_types.floor, order = "F") #  По сути, мы создаем 2D-массив, заполненный теми же значениями, 
-                                                                                        #  которые в данном случае являются tile_types.floor, 
-                                                                                        #  которые мы создали ранее. Это будет заполнено self.tiles плитками пола
-
-        self.tiles[30:33, 22] = tile_types.wall   #  создает небольшую стену шириной в три плитки в указанном месте.
+        self.tiles = numpy.full((width, height), fill_value = tile_types.wall, order = "F") #  По сути, мы создаем 2D-массив, заполненный теми же значениями, 
+                                                                                        #  которые в данном случае являются tile_types.wall, 
+                                                                                        #  которые мы создали ранее. Это будет заполнено self.tiles плитками стен
 
     def in_bounds(self, x: int, y: int) -> bool:            #  Как указано в строке, этот метод возвращает True, 
         return 0 <= x < self.width and 0 <= y < self.height #  если заданные значения x и y находятся в пределах границ карты. 

@@ -3,7 +3,7 @@
 from engine import Engine
 from input_handlers import EventHandler
 from entity import Entity
-from game_map import GameMap
+from roomGen import generate_dungeon
 
 
 def main() -> None:
@@ -21,7 +21,7 @@ def main() -> None:
     npc = Entity(int(SCREEN_WIDTH / 2 - 5), int(SCREEN_HEIGHT / 2), "T", (254,75,0))
     entities = {npc, player}
 
-    game_map = GameMap(MAP_WIDTH, MAP_HEIGHT) #  game_map Переменная содержит нашу инициализированную GameMap, и затем мы передаем ее в engine
+    game_map = generate_dungeon(MAP_WIDTH, MAP_HEIGHT)
 
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 

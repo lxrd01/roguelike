@@ -27,6 +27,7 @@
     <Compile Include="game_map.py" />
     <Compile Include="input_handlers.py" />
     <Compile Include="roguelike.py" />
+    <Compile Include="roomGen.py" />
     <Compile Include="tile_types.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
