@@ -1,15 +1,22 @@
-﻿from game_map import GameMap
+﻿from __future__ import annotations
+
+
+from game_map import GameMap
 import tile_types
 
+
 import random
-from typing import Iterator, Tuple
+from typing import Iterator, Tuple, List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from entity import Entity
 
 import tcod
 
 
 class RectangularRoom:
     def __init__(self, x: int, y: int, width: int, height: int):  # __init__ Функция принимает координаты x и y верхнего левого угла и вычисляет нижний правый угол                                                                   
-        self.x1 = x                                               #  на основе параметров w и h (ширина и высота).
+        self.x1 = x                                               #  на основе параметров width и height (ширина и высота).
         self.y1 = y
         self.x2 = x + width
         self.y2 = y + height
@@ -24,6 +31,16 @@ class RectangularRoom:
     @property
     def inner(self) -> Tuple[slice, slice]:                                #  inner Свойство возвращает два “среза”, которые представляют внутреннюю часть нашей комнаты.
         return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)    #  Это часть, которую мы будем “выкапывать” для нашей комнаты в нашем генераторе подземелий.
+
+    def intersects(self, other: RectangularRoom) -> bool:
+        """intersects проверяет, пересекаются ли комната и другая комната (other в аргументах) или нет. 
+        Он возвращает True если они пересекаются или False если они этого не делают. Мы будем использовать это, чтобы определить, перекрываются ли две комнаты или нет."""
+        return (
+            self.x1 <= other.x2
+            and self.x2 >= other.x1
+            and self.y1 <= other.y2
+            and self.y2 >= other.y1
+        )
 
 
 def tunnel_between(                               # Функция принимает два аргумента, оба кортежа, состоящие из двух целых чисел.
@@ -56,16 +73,47 @@ def tunnel_between(                               # Функция приним�
         yield x, y
 
 
-def generate_dungeon(MAP_WIDTH, MAP_HEIGHT) -> GameMap:
+def generate_dungeon(
+    max_rooms: int,
+    room_min_size: int,
+    room_max_size: int,
+    MAP_WIDTH: int,
+    MAP_HEIGHT: int,
+    player: Entity,
+) -> GameMap:
+    #  Создаём новое подземелье
     dungeon = GameMap(MAP_WIDTH, MAP_HEIGHT)
 
-    room_1 = RectangularRoom(x = 20, y = 15, width = 10, height = 15)
-    room_2 = RectangularRoom(x = 35, y = 15, width = 10, height = 15)
+    rooms: List[RectangularRoom] = [] # Мы создаём и ведём текущий список всех комнат.
+    ''' Наш алгоритм может размещать или не размещать комнату в зависимости от того, пересекается ли она с другой, поэтому мы не будем знать, 
+    сколько комнат у нас в итоге получится. Но, по крайней мере, мы будем знать, что это число не может превышать определенную сумму. '''
+    for r in range(max_rooms):
+        '''Здесь мы используем заданные минимальные и максимальные размеры комнаты, чтобы задать ширину и высоту комнаты. 
+        Затем мы получаем случайную пару x и y координат, чтобы попытаться разместить комнату внизу. Координаты должны быть между 0 и шириной и высотой карты.
+        Мы используем эти переменные, чтобы затем создать экземпляр нашего RectangularRoom.'''
+        room_width = random.randint(room_min_size, room_max_size)
+        room_height = random.randint(room_min_size, room_max_size)
 
-    dungeon.tiles[room_1.inner] = tile_types.floor
-    dungeon.tiles[room_2.inner] = tile_types.floor
+        x = random.randint(0, dungeon.width - room_width - 1)
+        y = random.randint(0, dungeon.height - room_height - 1)
 
-    for x, y in tunnel_between(room_2.center, room_1.center):
-        dungeon.tiles[x, y] = tile_types.floor
+        new_room = RectangularRoom(x, y, room_width, room_height)
+
+        if any(new_room.intersects(other_room) for other_room in rooms): # Если наша комната пересекается с другой комнатой, то мы используем continue,
+            continue                                                     # чтобы пропустить остальную часть цикла.
+
+        dungeon.tiles[new_room.inner] = tile_types.floor # Здесь мы “выкапываем” комнату. То есть, присваиваем нашей комнате параметры floor
+
+        if len(rooms) == 0:
+            # Первая комната, где стартует игрок
+            player.x, player.y = new_room.center
+            '''Мы помещаем нашего игрока в центр первой созданной нами комнаты. Если эта комната не первая, мы переходим к else: '''
+        else:
+            # Копаем туннель между предыдущей и нынешней комнатой
+            for x, y in tunnel_between(rooms[-1].center, new_room.center):
+                dungeon.tiles[x, y] = tile_types.floor
+
+        # Добавляем комнату в список.
+        rooms.append(new_room)
 
     return dungeon

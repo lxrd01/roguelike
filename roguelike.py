@@ -13,6 +13,10 @@ def main() -> None:
     MAP_WIDTH = 150
     MAP_HEIGHT = 80
 
+    room_max_size = 15
+    room_min_size = 10
+    max_rooms = 42
+
     tileset = tcod.tileset.load_tilesheet("arial12x12.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     event_handler = EventHandler()
@@ -21,7 +25,14 @@ def main() -> None:
     npc = Entity(int(SCREEN_WIDTH / 2 - 5), int(SCREEN_HEIGHT / 2), "T", (254,75,0))
     entities = {npc, player}
 
-    game_map = generate_dungeon(MAP_WIDTH, MAP_HEIGHT)
+    game_map = generate_dungeon(
+        max_rooms = max_rooms,
+        room_min_size = room_min_size,
+        room_max_size = room_max_size,
+        MAP_WIDTH = MAP_WIDTH,
+        MAP_HEIGHT = MAP_HEIGHT,
+        player = player
+    )
 
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 
