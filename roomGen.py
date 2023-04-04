@@ -52,7 +52,7 @@ def place_entities(
         y = random.randint(room.y1 + 1, room.y2 - 1)
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):  #A мы проверяем рандомные координаты чтоб не стакнулись враги
-            if random.random() < 0.7: #А с вероятностью 70% будет босс
+            if random.random() < 0.7: #А с вероятностью 70% будет большой тролль
                 entity_factories.Troll.spawn(dungeon, x, y)
             else:
                 entity_factories.BigTroll.spawn(dungeon, x, y)

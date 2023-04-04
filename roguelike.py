@@ -13,10 +13,10 @@ def main() -> None:
     MAP_WIDTH = 150
     MAP_HEIGHT = 80
 
-    room_max_size = 15
-    room_min_size = 10
-    max_rooms = 42
-    max_monsters_per_room = 1
+    room_max_size = 40
+    room_min_size = 30
+    max_rooms = 6
+    max_monsters_per_room = 3
 
     tileset = tcod.tileset.load_tilesheet("arial12x12.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
