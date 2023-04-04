@@ -1,6 +1,7 @@
 ﻿from typing import Tuple
 
 import numpy
+import numpy as np
 
 #  dtype создает тип данных, который может использовать Numpy, который ведет себя аналогично struct на таком языке, как C. Наш тип данных состоит из трех частей
 graphic_dt = numpy.dtype(
@@ -20,6 +21,7 @@ tile_dt = numpy.dtype(
         ("dark", graphic_dt), #  dark: Здесь используется наш ранее определенный dtype, который содержит символ для печати, цвет переднего плана и цвет фона.
                                #    Назвали dark, т.к позже мы захотим различать плитки, которые находятся в поле зрения, и которых нет.
                                 #    dark будут представлять фрагменты, которых нет в текущем поле зрения.  '''
+        ("light", graphic_dt),   #A графика когда плитка находится в фове игрока
     ]
 )
 
@@ -27,15 +29,29 @@ tile_dt = numpy.dtype(
 Она принимает параметры walkable, transparent и dark, которые должны выглядеть знакомо, поскольку это те же типы данных, которые мы использовали выше в tile_dt.
 Она создает массив Numpy, содержащий только один элемент tile_dt и возвращает его.  '''
 
-def new_tile(*, walkable: int, transparent: int, dark: Tuple[int, Tuple[int,int,int], Tuple[int,int,int]]) -> numpy.ndarray:
-    return numpy.array((walkable, transparent, dark), dtype = tile_dt)
+def new_tile(
+        *,
+        walkable: int,
+        transparent: int,
+        dark: Tuple[int, Tuple[int,int,int], Tuple[int,int,int]],
+        light: Tuple[int, Tuple[int,int,int], Tuple[int,int,int]],
+) -> numpy.ndarray:
+    return numpy.array((walkable, transparent, dark, light), dtype = tile_dt)
 
+ #SHROUD представляет собой неисследованную, невидимую плитку, она просто будет черной
+SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0,)), dtype=graphic_dt)
 
 floor = new_tile(
-    walkable=True, transparent=True, dark=(ord(" "), (255, 255, 255), (97, 101, 0)),
+    walkable=True,
+    transparent=True,
+    dark=(ord(" "), (255, 255, 255), (97, 101, 0)),
+    light=(ord(" "), (255, 255, 255), (130, 110, 50)),
                                      #  dark атрибут состоит из символа пробела и определяет цвет переднего плана как белый 
                                      #  (не имеет значения, поскольку это пустое пространство) и цвет фона.
 )
 wall = new_tile(
-    walkable=False, transparent=False, dark=(ord(" "), (255, 255, 255), (0, 0, 0)),
+    walkable=False,
+    transparent=False,
+    dark=(ord(" "), (255, 255, 255), (0, 0, 0)),
+    light=(ord(" "), (255, 255, 255), (130, 110, 50)),
 )

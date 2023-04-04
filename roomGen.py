@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from entity import Entity
 
 import tcod
-
+import entity_factories
 
 class RectangularRoom:
     def __init__(self, x: int, y: int, width: int, height: int):  # __init__ Функция принимает координаты x и y верхнего левого угла и вычисляет нижний правый угол                                                                   
@@ -41,6 +41,23 @@ class RectangularRoom:
             and self.y1 <= other.y2
             and self.y2 >= other.y1
         )
+
+def place_entities(
+        room: RectangularRoom, dungeon: GameMap, maximmum_monsters: int,
+) -> None:
+    number_of_monsters = random.randint(0, maximmum_monsters)
+
+    for i in range(number_of_monsters):
+        x = random.randint(room.x1 + 1, room.x2 - 1)
+        y = random.randint(room.y1 + 1, room.y2 - 1)
+
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):  #A мы проверяем рандомные координаты чтоб не стакнулись враги
+            if random.random() < 0.7: #А с вероятностью 70% будет босс
+                entity_factories.orc.spawn(dungeon, x, y)
+            else:
+                entity_factories.boss.spawn(dungeon, x, y)
+
+
 
 
 def tunnel_between(                               # Функция принимает два аргумента, оба кортежа, состоящие из двух целых чисел.
@@ -79,10 +96,11 @@ def generate_dungeon(
     room_max_size: int,
     MAP_WIDTH: int,
     MAP_HEIGHT: int,
+    max_monsters_per_room: int,
     player: Entity,
 ) -> GameMap:
     #  Создаём новое подземелье
-    dungeon = GameMap(MAP_WIDTH, MAP_HEIGHT)
+    dungeon = GameMap(MAP_WIDTH, MAP_HEIGHT, entities=[player]) #A entities=[player] добавили чтоб сам игрок был виден в фове
 
     rooms: List[RectangularRoom] = [] # Мы создаём и ведём текущий список всех комнат.
     ''' Наш алгоритм может размещать или не размещать комнату в зависимости от того, пересекается ли она с другой, поэтому мы не будем знать, 
@@ -113,6 +131,7 @@ def generate_dungeon(
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = tile_types.floor
 
+        place_entities(new_room, dungeon, max_monsters_per_room)
         # Добавляем комнату в список.
         rooms.append(new_room)
 
