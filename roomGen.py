@@ -53,9 +53,9 @@ def place_entities(
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):  #A мы проверяем рандомные координаты чтоб не стакнулись враги
             if random.random() < 0.7: #А с вероятностью 70% будет босс
-                entity_factories.orc.spawn(dungeon, x, y)
+                entity_factories.Troll.spawn(dungeon, x, y)
             else:
-                entity_factories.boss.spawn(dungeon, x, y)
+                entity_factories.BigTroll.spawn(dungeon, x, y)
 
 
 

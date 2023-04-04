@@ -1,5 +1,4 @@
 ﻿from __future__ import annotations
-import numpy
 import numpy as np
 from tcod.console import Console
 
@@ -14,7 +13,7 @@ class GameMap:
     def __init__(self, width: int, height: int, entities: Iterable[Entity] = ()):
         self.width, self.height = width, height
         self.entities = set(entities)
-        self.tiles = numpy.full((width, height), fill_value = tile_types.wall, order = "F") #  По сути, мы создаем 2D-массив, заполненный теми же значениями, 
+        self.tiles = np.full((width, height), fill_value = tile_types.wall, order = "F") #  По сути, мы создаем 2D-массив, заполненный теми же значениями, 
                                                                                         #  которые в данном случае являются tile_types.wall, 
                                                                                         #  которые мы создали ранее. Это будет заполнено self.tiles плитками стен
         self.visible = np.full((width,height), fill_value=False, order="F") #A плитки которые игрок может увидеть
