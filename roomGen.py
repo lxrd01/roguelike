@@ -9,7 +9,7 @@ import random
 from typing import Iterator, Tuple, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from entity import Entity
+    from engine import Engine
 
 import tcod
 import entity_factories
@@ -97,10 +97,11 @@ def generate_dungeon(
     MAP_WIDTH: int,
     MAP_HEIGHT: int,
     max_monsters_per_room: int,
-    player: Entity,
+    engine: Engine,
 ) -> GameMap:
     #  Создаём новое подземелье
-    dungeon = GameMap(MAP_WIDTH, MAP_HEIGHT, entities=[player]) #A entities=[player] добавили чтоб сам игрок был виден в фове
+    player = engine.player
+    dungeon = GameMap(engine, MAP_WIDTH, MAP_HEIGHT, entities=[player]) #A entities=[player] добавили чтоб сам игрок был виден в фове
 
     rooms: List[RectangularRoom] = [] # Мы создаём и ведём текущий список всех комнат.
     ''' Наш алгоритм может размещать или не размещать комнату в зависимости от того, пересекается ли она с другой, поэтому мы не будем знать, 
@@ -124,7 +125,7 @@ def generate_dungeon(
 
         if len(rooms) == 0:
             # Первая комната, где стартует игрок
-            player.x, player.y = new_room.center
+            player.place(*new_room.center, dungeon)
             '''Мы помещаем нашего игрока в центр первой созданной нами комнаты. Если эта комната не первая, мы переходим к else: '''
         else:
             # Копаем туннель между предыдущей и нынешней комнатой

@@ -6,22 +6,28 @@ from typing import Iterable, Optional, TYPE_CHECKING
 import tile_types
 
 if TYPE_CHECKING:
+    from engine import Engine
     from entity import Entity
 
 
 class GameMap:
-    def __init__(self, width: int, height: int, entities: Iterable[Entity] = ()):
+    def __init__(self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = ()):
+        self.engine = engine
         self.width, self.height = width, height
         self.entities = set(entities)
         self.tiles = np.full((width, height), fill_value = tile_types.wall, order = "F") #  По сути, мы создаем 2D-массив, заполненный теми же значениями, 
                                                                                         #  которые в данном случае являются tile_types.wall, 
                                                                                         #  которые мы создали ранее. Это будет заполнено self.tiles плитками стен
-        self.visible = np.full((width,height), fill_value=False, order="F") #A плитки которые игрок может увидеть
+        self.visible = np.full((width, height), fill_value = False, order = "F") #A плитки которые игрок может увидеть
         self.explored = np.full((width,height), fill_value=False, order="F") #A плитки которые игрок видел раньше
 
     def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]: #A функция выполняет итерацию по всем существам
         for entity in self.entities:                                                                #A если обнаружено что оба занимают заданные координаты
-            if entity.blocks_movement and entity.x == location_x and entity.y == location_y:      #А то она возвращает этот объект
+            if (                                                                                    #А то она возвращает этот объект
+                entity.blocks_movement
+                and entity.x == location_x
+                and entity.y == location_y
+               ):      
                 return entity
         return None
 
@@ -31,10 +37,10 @@ class GameMap:
                                                             #  Мы можем использовать это, чтобы гарантировать, что игрок не выйдет за пределы карты, в пустоту.
 
     def render(self, console: Console) -> None:                             #  Используя метод Console класса tiles_rgb, мы можем быстро отобразить всю карту.
-        console.tiles_rgb[0:self.width, 0:self.height] = np.select(         #  Этот метод оказывается намного быстрее, чем использование console.print метода,
+        console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(         #  Этот метод оказывается намного быстрее, чем использование console.print метода,
             condlist=[self.visible, self.explored],                          #  который мы используем для отдельных объектов.
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=tile_types.SHROUD               #A np.select позволяет нам условно рисовать нужные плитки на основе того, что указано в condlist.
+            default=tile_types.SHROUD,               #A np.select позволяет нам условно рисовать нужные плитки на основе того, что указано в condlist.
         )
         for entity in self.entities: #A принтуем только те объекты которые в фове
             if self.visible[entity.x, entity.y]:

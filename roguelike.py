@@ -2,7 +2,6 @@
 import tcod
 from engine import Engine
 import entity_factories
-from input_handlers import EventHandler
 from roomGen import generate_dungeon
 
 
@@ -13,28 +12,27 @@ def main() -> None:
     MAP_WIDTH = 150
     MAP_HEIGHT = 80
 
-    room_max_size = 40
-    room_min_size = 30
-    max_rooms = 6
+    room_max_size = 30
+    room_min_size = 15
+    max_rooms = 15
     max_monsters_per_room = 3
 
     tileset = tcod.tileset.load_tilesheet("arial12x12.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
-    event_handler = EventHandler()
-    
     player = copy.deepcopy(entity_factories.player)
+    
+    engine = Engine(player = player)
 
-    game_map = generate_dungeon(
+    engine.game_map = generate_dungeon(
         max_rooms = max_rooms,
         room_min_size = room_min_size,
         room_max_size = room_max_size,
         MAP_WIDTH = MAP_WIDTH,
         MAP_HEIGHT = MAP_HEIGHT,
         max_monsters_per_room=max_monsters_per_room,
-        player = player
+        engine = engine,
     )
-
-    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
+    engine.update_fov()
 
     with tcod.context.new_terminal(
         SCREEN_WIDTH,
@@ -47,9 +45,7 @@ def main() -> None:
         while True:
             engine.render(console = root_console, context = context)
 
-            events = tcod.event.wait()
-
-            engine.handle_events(events)
+            engine.event_handler.handle_events()
 
 
 if __name__ == "__main__":
