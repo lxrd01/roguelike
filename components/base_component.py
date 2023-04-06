@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class BaseComponent:
-    entity: Entity  # Owning entity instance.
+    entity: Entity
 
     @property
     def engine(self) -> Engine:

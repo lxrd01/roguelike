@@ -20,13 +20,13 @@ class GameMap:
         self.entities = set(entities)
         self.tiles = numpy.full((width, height), fill_value = tile_types.wall, order = "F") #  По сути, мы создаем 2D-массив, заполненный теми же значениями, 
                                                                                         #  которые в данном случае являются tile_types.wall, 
-                                                                                        #  которые мы создали ранее. Это будет заполнено self.tiles плитками стен
+                                                                                        #  которые мы создали ранее. Это будет заполнено self.tiles плитками стен.
         self.visible = numpy.full((width, height), fill_value = False, order = "F") #A плитки которые игрок может увидеть
         self.explored = numpy.full((width,height), fill_value=False, order="F") #A плитки которые игрок видел раньше
 
 
     @property
-    def actors(self) -> Iterator[Actor]:
+    def actors(self) -> Iterator[Actor]:  #  Наше actors свойство вернет все Actor объекты на карте, но только те, которые в данный момент “живы”.
         yield from (
             entity
             for entity in self.entities
@@ -43,20 +43,20 @@ class GameMap:
                 return entity
         return None
 
-    def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
-        for actor in self.actors:
+    def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:  #  Мы также пошли дальше и добавили get_actor_at_location, который, как следует из названия,
+        for actor in self.actors:                                        #  действует аналогично get_blocking_entity_at_location, но возвращает только Actor.
             if actor.x == x and actor.y == y:
                 return actor
 
         return None
 
 
-    def in_bounds(self, x: int, y: int) -> bool:            #  Как указано в строке, этот метод возвращает True, 
-        return 0 <= x < self.width and 0 <= y < self.height #  если заданные значения x и y находятся в пределах границ карты. 
-                                                            #  Мы можем использовать это, чтобы гарантировать, что игрок не выйдет за пределы карты, в пустоту.
+    def in_bounds(self, x: int, y: int) -> bool:             #  Как указано в строке, этот метод возвращает True, 
+        return 0 <= x < self.width and 0 <= y < self.height  #  если заданные значения x и y находятся в пределах границ карты. 
+                                                             #  Мы можем использовать это, чтобы гарантировать, что игрок не выйдет за пределы карты, в пустоту.
 
-    def render(self, console: Console) -> None:                             #  Используя метод Console класса tiles_rgb, мы можем быстро отобразить всю карту.
-        console.tiles_rgb[0 : self.width, 0 : self.height] = numpy.select(         #  Этот метод оказывается намного быстрее, чем использование console.print метода,
+    def render(self, console: Console) -> None:                              #  Используя метод Console класса tiles_rgb, мы можем быстро отобразить всю карту.
+        console.tiles_rgb[0 : self.width, 0 : self.height] = numpy.select(   #  Этот метод оказывается намного быстрее, чем использование console.print метода,
             condlist=[self.visible, self.explored],                          #  который мы используем для отдельных объектов.
             choicelist=[self.tiles["light"], self.tiles["dark"]],
             default=tile_types.SHROUD,               #A numpy.select позволяет нам условно рисовать нужные плитки на основе того, что указано в condlist.
