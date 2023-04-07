@@ -12,16 +12,16 @@ def main() -> None:
     MAP_WIDTH = 150
     MAP_HEIGHT = 80
 
-    room_max_size = 30
-    room_min_size = 15
-    max_rooms = 15
+    room_max_size = 40
+    room_min_size = 30
+    max_rooms = 6
     max_monsters_per_room = 3
 
     tileset = tcod.tileset.load_tilesheet("arial12x12.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     player = copy.deepcopy(entity_factories.player)
-    
-    engine = Engine(player = player)
+
+    engine = Engine(player=player)
 
     engine.game_map = generate_dungeon(
         max_rooms = max_rooms,
@@ -30,8 +30,9 @@ def main() -> None:
         MAP_WIDTH = MAP_WIDTH,
         MAP_HEIGHT = MAP_HEIGHT,
         max_monsters_per_room=max_monsters_per_room,
-        engine = engine,
+        engine=engine
     )
+
     engine.update_fov()
 
     with tcod.context.new_terminal(
