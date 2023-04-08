@@ -3,6 +3,7 @@ import tcod
 from engine import Engine
 import entity_factories
 from roomGen import generate_dungeon
+import color
 
 
 def main() -> None:
@@ -12,10 +13,10 @@ def main() -> None:
     MAP_WIDTH = 150
     MAP_HEIGHT = 80
 
-    room_max_size = 40
-    room_min_size = 30
-    max_rooms = 6
-    max_monsters_per_room = 3
+    room_max_size = 25
+    room_min_size = 12
+    max_rooms = 18
+    max_monsters_per_room = 2
 
     tileset = tcod.tileset.load_tilesheet("arial12x12.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
@@ -35,6 +36,10 @@ def main() -> None:
 
     engine.update_fov()
 
+    engine.message_log.add_message(
+        "Hello and welcome, adventure, to yet another dungeon!", color.welcome_text
+    )
+
     with tcod.context.new_terminal(
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
@@ -44,9 +49,11 @@ def main() -> None:
     ) as context:
         root_console = tcod.Console(SCREEN_WIDTH, SCREEN_HEIGHT, order = "F")
         while True:
-            engine.render(console = root_console, context = context)
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
 
-            engine.event_handler.handle_events()
+            engine.event_handler.handle_events(context)
 
 
 if __name__ == "__main__":
