@@ -1,6 +1,6 @@
 from components.ai import HostileEnemy
 from components.fighter import Fighter
-from entity import Actor
+from entity import Actor, Item
 
 
 player = Actor(
@@ -25,4 +25,10 @@ BigTroll = Actor(
     name="BigTroll",
     ai_cls=HostileEnemy,
     fighter=Fighter(hp=16, defense=0, power=4),
+)
+
+potion = Item(
+    char="p",
+    color=(0, 0, 139),
+    name="Potion"
 )
