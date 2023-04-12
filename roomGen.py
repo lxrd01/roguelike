@@ -69,7 +69,7 @@ def place_entities(
         y = random.randint(room.y1 + 1, room.y2 - 1)
         if not any(entity.x == x and entity.y == y for entity in
                    dungeon.entities):
-            entity_factories.potion.spawn(dungeon, x, y)
+            entity_factories.Flask.spawn(dungeon, x, y)
 
 
 

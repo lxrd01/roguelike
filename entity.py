@@ -102,6 +102,8 @@ class Item(Entity):
             char: str = "?",
             color: Tuple[int, int, int] = (255, 255, 255),
             name: str = "<Unnamed>",
+            type: int = 0,
+            boost: int = 0,
     ):
         super().__init__(
             x=x,
@@ -112,3 +114,7 @@ class Item(Entity):
             blocks_movement=False,
             render_order=RenderOrder.ITEM,
         )
+        self.type=type,
+        self.boost=boost,
+
+
