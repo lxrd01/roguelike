@@ -2,11 +2,14 @@
 
 from typing import TYPE_CHECKING, Optional, Tuple
 
+import entity
+
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity, Actor
+    from entity import Entity, Actor,Item
 
 import color
+from inventory import inv,pos_inv
 
 
 class Action:
@@ -55,6 +58,16 @@ class ActionWithDirection(Action):
         raise NotImplementedError()
 
 
+class Take(ActionWithDirection):
+    def take(self, item):
+        if isinstance(item, Item):
+            if pos_inv != 6:
+                inv[pos_inv] = item.char
+                pos_inv += 1
+                item.char = "u"
+
+
+
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
         target = self.target_actor
@@ -100,7 +113,10 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):                              #A этот класс принимает решение о том какой класс , между MeleeAction и MovementAction возвращать.
     def perform(self) -> None:      #A  BumpAction просто определяет, какой из них подходит для вызова,
         if self.target_actor:
-            return MeleeAction(self.entity, self.dx, self.dy).perform()
+            if isinstance(self.target_actor,entity.Actor):
+                return MeleeAction(self.entity, self.dx, self.dy).perform()
+            if isinstance(self.target_actor,entity.Item):
+                return Take(self.entity).perform()
 
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
