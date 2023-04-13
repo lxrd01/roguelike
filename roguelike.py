@@ -1,4 +1,5 @@
 ﻿import copy
+import traceback
 import tcod
 from engine import Engine
 import entity_factories
@@ -17,6 +18,8 @@ def main() -> None:
     room_min_size = 12
     max_rooms = 18
     max_monsters_per_room = 2
+    max_items_per_room = 2
+
 
     tileset = tcod.tileset.load_tilesheet("arial12x12.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
 
@@ -31,6 +34,7 @@ def main() -> None:
         MAP_WIDTH = MAP_WIDTH,
         MAP_HEIGHT = MAP_HEIGHT,
         max_monsters_per_room=max_monsters_per_room,
+        max_items_per_room=max_items_per_room,
         engine=engine
     )
 
@@ -53,7 +57,14 @@ def main() -> None:
             engine.event_handler.on_render(console=root_console)
             context.present(root_console)
 
-            engine.event_handler.handle_events(context)
+            try:
+                for event in tcod.event.wait():
+                    context.convert_event(event)
+                    engine.event_handler.handle_events(event)
+            except Exception:  # Обработка исключений в игре
+                traceback.print_exc()  # Принт ошибки
+                # Принт ошибки в логи
+                engine.message_log.add_message(traceback.format_exc(), color.error)
 
 
 if __name__ == "__main__":

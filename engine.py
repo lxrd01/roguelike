@@ -1,5 +1,6 @@
 ﻿from __future__ import annotations
 
+import exceptions
 from typing import TYPE_CHECKING
 from tcod.console import Console
 from message_log import MessageLog
@@ -11,7 +12,6 @@ if TYPE_CHECKING:
     from entity import Actor
     from game_map import GameMap
     from input_handlers import EventHandler
-
 
 class Engine:
     game_map: GameMap
@@ -25,7 +25,10 @@ class Engine:
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
-                entity.ai.perform()
+                try:
+                    entity.ai.perform()
+                except exceptions.Impossible:
+                    pass  # Игнорировать исключения невозможных действий от ИИ
 
     def update_fov(self) -> None:  # A область видимости
         self.game_map.visible[:] = compute_fov(
